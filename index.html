@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#063e8c">
+<title>EL RAYO - FLOTA</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>body{margin:0;font-family:Arial,sans-serif;background:#f2f7fc;color:#10254a;display:grid;place-items:center;min-height:100vh}.box{text-align:center;padding:28px}.icon{font-size:64px}.title{font-size:26px;font-weight:900;margin:12px 0 6px}.sub{color:#66758a;margin-bottom:22px}.btn{display:inline-block;background:#0865c7;color:#fff;text-decoration:none;padding:15px 22px;border-radius:14px;font-weight:800}</style>
+</head>
+<body>
+<div class="box"><div class="icon">🚚</div><div class="title">EL RAYO - FLOTA</div><div class="sub">Abriendo documentación y combustible...</div><a class="btn" id="abrir" href="https://script.google.com/macros/s/AKfycbxH4Ik7ChiB-Tk0u7c-1iFCJDofpiotD91xVDpeRRKcATRwZWkS9wToVA0pzGJlwhMWUQ/exec">ABRIR FLOTA</a></div>
+<script>
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
+setTimeout(()=>{location.href=document.getElementById('abrir').href;},700);
+</script>
+</body></html>
