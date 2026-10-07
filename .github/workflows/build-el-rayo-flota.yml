@@ -29,10 +29,40 @@ jobs:
           manifest = Path('android-src/el-rayo-flota-android/app/src/main/AndroidManifest.xml')
           text = manifest.read_text()
           text = text.replace('android:label="EL RAYO - FLOTA"', 'android:label="MIRIAN FLOTA" android:icon="@drawable/app_icon"')
+          if 'android.permission.ACCESS_FINE_LOCATION' not in text:
+              text = text.replace('<application', '<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n    <application', 1)
           manifest.write_text(text)
           strings = Path('android-src/el-rayo-flota-android/app/src/main/res/values/strings.xml')
           strings.write_text(strings.read_text().replace('EL RAYO - FLOTA', 'MIRIAN FLOTA'))
           PYICON
+      - name: Habilitar ubicacion en Android y WebView
+        run: |
+          python - <<'PYLOC'
+          from pathlib import Path
+          p = Path('android-src/el-rayo-flota-android/app/src/main/java/ar/com/elrayo/flota/MainActivity.java')
+          t = p.read_text()
+          if 'android.Manifest' not in t:
+              t = t.replace('package ar.com.elrayo.flota;', 'package ar.com.elrayo.flota;\n\nimport android.Manifest;\nimport android.content.pm.PackageManager;\nimport android.webkit.GeolocationPermissions;')
+          # Enable WebView geolocation prompt automatically after Android permission is granted.
+          if 'onGeolocationPermissionsShowPrompt' not in t:
+              needle = 'webView.setWebChromeClient(new WebChromeClient());'
+              repl = '''webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
+                callback.invoke(origin, true, false);
+            }
+        });'''
+              t = t.replace(needle, repl)
+          # Request Android location permission at runtime on app startup.
+          if 'requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION' not in t:
+              needle = 'super.onCreate(savedInstanceState);'
+              repl = '''super.onCreate(savedInstanceState);
+        if (android.os.Build.VERSION.SDK_INT >= 23 && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1001);
+        }'''
+              t = t.replace(needle, repl)
+          p.write_text(t)
+          PYLOC
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
